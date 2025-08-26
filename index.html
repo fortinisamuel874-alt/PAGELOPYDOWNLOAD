@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta name="google-site-verification" content="c7a31a68f2db24ec" />
+  <meta charset="UTF-8">
+  <title>LOPY Programming Language</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0; padding: 0;
+      background-color: #f8f9fa;
+      color: #212529;
+      line-height: 1.6;
+    }
+    header {
+      background: #306998;
+      color: white;
+      padding: 2rem;
+      text-align: center;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 2.5rem;
+    }
+    nav {
+      background: #ffd43b;
+      padding: 0.8rem;
+      text-align: center;
+    }
+    nav a {
+      margin: 0 15px;
+      text-decoration: none;
+      color: #212529;
+      font-weight: bold;
+    }
+    section {
+      max-width: 900px;
+      margin: auto;
+      padding: 2rem;
+    }
+    pre {
+      background: #272822;
+      color: #f8f8f2;
+      padding: 1rem;
+      border-radius: 8px;
+      overflow-x: auto;
+    }
+    .btn {
+      display: inline-block;
+      background: #306998;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-size: 1.1rem;
+      margin-top: 1rem;
+      cursor: pointer;
+    }
+    .btn:hover {
+      background: #205375;
+    }
+    footer {
+      text-align: center;
+      padding: 2rem;
+      background: #eee;
+      margin-top: 2rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>LOPY Programming Language</h1>
+    <p>A lightweight interpreted language powered by Python</p>
+  </header>
+
+  <nav>
+    <a href="#intro">Introduction</a>
+    <a href="#install">Installation</a>
+    <a href="#usage">Usage</a>
+    <a href="#examples">Examples</a>
+    <a href="#libs">Libraries</a>
+    <a href="#fileassoc">File Association</a>
+  </nav>
+
+  <section id="intro">
+    <h2>Introduction</h2>
+    <p>
+      <b>LOPY</b> is a custom interpreted programming language that runs on top of Python.  
+      It provides a simplified syntax for learning, experimenting and quickly building programs.
+    </p>
+  </section>
+
+  <section id="install">
+    <h2>Installation</h2>
+    <ol>
+      <li>Install <b>Python 3.x</b> (required).</li>
+      <li>Download <code>lopyv2.py</code> from the button below.</li>
+      <li>Save it anywhere on your computer.</li>
+      <li>(Optional) Install <code>pyinstaller</code> if you want to compile into an executable.</li>
+    </ol>
+    <button id="downloadBtn" class="btn">⬇ Download LOPYV2.py</button>
+  </section>
+
+  <section id="usage">
+    <h2>Usage</h2>
+    <p>Create a file with extension <code>.lopy</code>, for example <code>test.lopy</code>, and run:</p>
+    <pre>python lopyv2.py test.lopy</pre>
+  </section>
+
+  <section id="examples">
+    <h2>Examples</h2>
+    <p>Here are some example programs showing core features of LOPY:</p>
+    <h3>Print text</h3>
+    <pre>print("Hello, World!")</pre>
+    <h3>Variables and math</h3>
+    <pre>
+class1 "x" = "10"
+class1 "y" = "20"
+print(!x + y!)   # prints 30
+    </pre>
+    <h3>Input</h3>
+    <pre>
+input1!("Enter your name: ")
+print("Hello .input1!")
+    </pre>
+    <h3>If statement</h3>
+    <pre>
+class1 "n" = "5"
+if1 n &gt; 3
+    print("n is greater than 3")
+end!
+    </pre>
+    <h3>While loop</h3>
+    <pre>
+class1 "i" = "0"
+while1(i &lt; 5)
+    print("i = .i")
+    i = !i + 1!
+end!
+    </pre>
+  </section>
+
+  <section id="libs">
+    <h2>Libraries</h2>
+    <p>
+      To use external code, place your libraries inside a folder named <code>lopy_libs</code>.  
+      Supported formats:
+    </p>
+    <ul>
+      <li><b>.lopylib</b> → LOPY code</li>
+      <li><b>.pylib</b> → Python code</li>
+    </ul>
+    <pre>import! "test"</pre>
+  </section>
+
+  <section id="fileassoc">
+    <h2>File Association (Windows)</h2>
+    <pre>
+Windows Registry Editor Version 5.00
+
+[HKEY_CLASSES_ROOT\.lopy]
+@="LOPYV2.File"
+
+[HKEY_CLASSES_ROOT\LOPYV2.File\shell\open\command]
+@="\"C:\\Users\\YourName\\Documents\\dist\\LOPYV2.exe\" \"%1\""
+    </pre>
+  </section>
+
+  <script>
+    document.getElementById("downloadBtn").addEventListener("click", function() {
+      const code = `#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import sys, re, ast, os
+
+# ---------- Avaliação segura de expressões LOPY ----------
+ALLOWED_AST_NODES = {
+    ast.Expression, ast.BinOp, ast.UnaryOp, ast.BoolOp, ast.Compare,
+    ast.Name, ast.Load, ast.Constant,
+    ast.Add, ast.Sub, ast.Mult, ast.Div, ast.FloorDiv, ast.Mod, ast.Pow,
+    ast.USub, ast.UAdd, ast.And, ast.Or, ast.Not, ast.NotEq, ast.Eq,
+    ast.Gt, ast.GtE, ast.Lt, ast.LtE, ast.Tuple, ast.List, ast.Dict, ast.Subscript,
+    ast.Index, ast.Slice, ast.IfExp, ast.Constant
+}
+
+def _ensure_safe(node: ast.AST):
+    for child in ast.walk(node):
+        if isinstance(child, ast.Call):
+            raise ValueError("Chamadas de função não são permitidas em expressões LOPY.")
+        if type(child) not in ALLOWED_AST_NODES:
+            raise ValueError(f"Elemento não permitido na expressão: {type(child).__name__}")
+
+def safe_eval(expr: str, env: dict):
+    node = ast.parse(expr, mode="eval")
+    _ensure_safe(node)
+    return eval(compile(node, "<lopy-expr>", "eval"), {"__builtins__": {}}, env)
+
+# ---------- Motor LOPY ----------
+VAR_RE = re.compile(r"\.(\w+)")
+CALC_RE = re.compile(r"!(.+?)!")
+STR_LIT_RE = re.compile(r'^"(.*)"$')
+
+class LopyRuntime:
+    def __init__(self):
+        self.env = {}
+        self.last_input = ""
+
+    def set_var(self, name: str, value):
+        self.env[name] = value
+
+    def get_var(self, name: str, default=""):
+        return self.env.get(name, default)
+
+    def render_string(self, s: str):
+        def repl_var(m):
+            return str(self.get_var(m.group(1), ""))
+        s = VAR_RE.sub(repl_var, s)
+
+        def repl_calc(m):
+            expr = m.group(1)
+            try:
+                val = safe_eval(expr, self.env.copy())
+            except Exception as e:
+                raise RuntimeError(f"Erro ao calcular !{expr}!: {e}")
+            return str(val)
+        return CALC_RE.sub(repl_calc, s)
+
+    def do_print(self, text: str):
+        print(self.render_string(text))
+
+    def do_input(self, prompt: str = ""):
+        inp = input(self.render_string(prompt))
+        self.last_input = inp
+        self.env["input1"] = inp
+        return inp
+
+# ---------- Parser/Executor ----------
+class Block:
+    def __init__(self, kind, cond=None, iterations=None, start_ip=None):
+        self.kind = kind
+        self.cond = cond
+        self.iterations = iterations
+        self.start_ip = start_ip
+
+def strip_comment(line: str):
+    out = []
+    in_str = False
+    i = 0
+    while i < len(line):
+        c = line[i]
+        if c == '"' and (i == 0 or line[i-1] != '\\'):
+            in_str = not in_str
+            out.append(c)
+        elif c == '#' and not in_str:
+            break
+        else:
+            out.append(c)
+        i += 1
+    return ''.join(out).rstrip()
+
+def parse_string_literal(token: str):
+    m = STR_LIT_RE.match(token.strip())
+    if not m:
+        return None
+    return m.group(1)
+
+def is_truthy(runtime: LopyRuntime, expr: str):
+    try:
+        return bool(safe_eval(expr, runtime.env.copy()))
+    except Exception as e:
+        raise RuntimeError(f"Erro na condição '{expr}': {e}")
+
+def parse_assignment(runtime: LopyRuntime, line: str) -> bool:
+    if "=" in line and line.strip().count("=") == 1 and not line.strip().startswith(("class ", "class1 ")):
+        name, expr = line.split("=", 1)
+        name = name.strip()
+        expr = expr.strip()
+        try:
+            val = safe_eval(expr, runtime.env.copy())
+        except Exception:
+            s = parse_string_literal(expr)
+            if s is not None:
+                val = runtime.render_string(s)
+            else:
+                raise
+        runtime.set_var(name, val)
+        return True
+    return False
+
+# ---------- MAIN EXECUTOR ----------
+def run_lopy(lines, rt=None):
+    rt = rt or LopyRuntime()
+    ip = 0
+    blocks = []
+
+    # Ambiente Python global para exec()
+    py_env = {}
+
+    while ip < len(lines):
+        raw = lines[ip]
+        line = strip_comment(raw).strip()
+        ip += 1
+        if not line:
+            continue
+
+        # ---------- INPUT ----------
+        if line.startswith("input1!"):
+            m = re.match(r'input1!\s*(\("(.*)"\))?$', line)
+            if m and m.group(2) is not None:
+                rt.do_input(m.group(2))
+            else:
+                rt.do_input("")
+            continue
+
+        # ---------- CLASSES ----------
+        if line.startswith("class "):
+            m = re.match(r'class\s+"([^"]+)"\s*=\s*"(.*)"\s*$', line)
+            if not m:
+                raise RuntimeError(f"Sintaxe inválida em: {line}")
+            name, rhs = m.group(1), m.group(2)
+            if rhs == "input1!":
+                rt.set_var(name, rt.last_input)
+            else:
+                rt.set_var(name, rt.render_string(rhs))
+            continue
+
+        if line.startswith("class1 "):
+            m = re.match(r'class1\s+"([^"]+)"\s*=\s*"(.*)"\s*$', line)
+            if not m:
+                raise RuntimeError(f"Sintaxe inválida em: {line}")
+            name, rhs = m.group(1), m.group(2)
+            try:
+                val = safe_eval(rhs, rt.env.copy())
+            except Exception as e:
+                raise RuntimeError(f"Valor numérico inválido para {name}: {e}")
+            rt.set_var(name, val)
+            continue
+
+        # ---------- PRINT ----------
+        m_print = re.match(r'print\d?\s*\((.*)\)\s*$', line)
+        if m_print:
+            inner = m_print.group(1).strip()
+            s = parse_string_literal(inner)
+            if s is None:
+                try:
+                    val = safe_eval(inner, rt.env.copy())
+                    rt.do_print(str(val))
+                except Exception as e:
+                    raise RuntimeError(f"print inválido: {e}")
+            else:
+                rt.do_print(s)
+            continue
+
+        # ---------- IF / ELSE / WHILE / LOOP / BREAK ----------
+        if line.lower().startswith("if1"):
+            cond = line[3:].lstrip(" :")
+            if not cond:
+                cond = 'input1 and True'
+            truth = is_truthy(rt, cond)
+            if truth:
+                blocks.append(Block("if_live"))
+            else:
+                blocks.append(Block("if_skip"))
+            continue
+
+        if line.lower() == "end!":
+            if not blocks:
+                continue
+            blk = blocks.pop()
+            if blk.kind in ("while_live", "loop_live"):
+                if blk.kind == "while_live":
+                    if is_truthy(rt, blk.cond):
+                        ip = blk.start_ip
+                elif blk.kind == "loop_live":
+                    if blk.iterations is None:
+                        ip = blk.start_ip
+                    else:
+                        blk.iterations -= 1
+                        if blk.iterations > 0:
+                            ip = blk.start_ip
+            continue
+
+        if line.lower().startswith("while1"):
+            m = re.match(r'while1\s*\((.*)\)\s*:?\s*$', line, re.IGNORECASE)
+            if not m:
+                raise RuntimeError("Use: while1(<cond>)")
+            cond_text = m.group(1).strip()
+            if is_truthy(rt, cond_text):
+                blocks.append(Block("while_live", cond=cond_text, start_ip=ip))
+            else:
+                blocks.append(Block("while_skip", cond=cond_text))
+            continue
+
+        if line.lower().startswith("loop!"):
+            m = re.match(r'loop!\s*(\d+)?!\s*$', line.lower())
+            times = int(m.group(1)) if m and m.group(1) else None
+            blocks.append(Block("loop_live", iterations=times, start_ip=ip))
+            continue
+
+        if line.lower() == "break!":
+            while blocks:
+                blk = blocks.pop()
+                if blk.kind in ("while_live", "loop_live"):
+                    break
+            continue
+
+        # ---------- IMPORT ----------
+        if line.lower().startswith("import!"):
+            m = re.match(r'import!\s*"([^"]+)"', line, re.IGNORECASE)
+            if not m:
+                raise RuntimeError(f"Sintaxe inválida em import!: {line}")
+            libname = m.group(1)
+
+            # Caminhos possíveis para bibliotecas
+            libpath_lopy = os.path.join("lopy_libs", libname + ".lopylib")
+            libpath_py   = os.path.join("lopy_libs", libname + ".pylib")
+
+            # Executa biblioteca LOPY
+            if os.path.exists(libpath_lopy):
+                with open(libpath_lopy, "r", encoding="utf-8") as f:
+                    lib_lines = f.read().splitlines()
+                run_lopy(lib_lines, rt)  # executa no mesmo runtime
+                continue
+
+            # Executa biblioteca Python
+            elif os.path.exists(libpath_py):
+                with open(libpath_py, "r", encoding="utf-8") as f:
+                    code = f.read()
+                try:
+                    exec(code, rt.env, rt.env)
+                except Exception as e:
+                    raise RuntimeError(f"Erro ao importar biblioteca Python '{libname}': {e}")
+                continue
+
+            else:
+                raise RuntimeError(f"Biblioteca '{libname}' não encontrada.")
+
+        # ---------- ASSIGNMENTS ----------
+        if parse_assignment(rt, line):
+            continue
+
+        # ---------- EXECUTAR QUALQUER CÓDIGO PYTHON ----------
+        try:
+            exec(line, py_env, rt.env)
+        except Exception as e:
+            raise RuntimeError(f"Erro ao executar linha Python: {line}\n{e}")
+
+# ---------- MAIN ----------
+def main():
+    if len(sys.argv) < 2:
+        print("Uso: lopy_interpreter.py caminho\\arquivo.lopy")
+        sys.exit(1)
+    path = sys.argv[1]
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            lines = f.read().splitlines()
+        run_lopy(lines)
+    except Exception as e:
+        print(f"[ERRO LOPY] {e}")
+        sys.exit(2)
+
+
+if __name__ == "__main__":
+    main()
+`;
+      const blob = new Blob([code], { type: "text/x-python" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "lopyv2.py";
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+  </script>
+
+  <footer>
+    <p>LOPY Language © 2025</p>
+  </footer>
+</body>
+</html>
